@@ -10,7 +10,8 @@ public class HttpServerManager {
 
     public void startServer() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("sh", "http-server /home/daniele/libri -p 81");
+            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "sh", "http-server /home/daniele/libri -p 81");
+            //ProcessBuilder processBuilder = new ProcessBuilder("sudo", "sh", "/path/to/your_script.sh");
             serverProcess = processBuilder.start();
             System.out.println("Server started.");
         } catch (IOException e) {
