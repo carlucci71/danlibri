@@ -28,14 +28,17 @@ public class HttpServerManager {
     }
 
     public void stopServer() {
+        System.out.println("VOGLIO STOPPARE");
         if (serverProcess != null) {
             serverProcess.destroy();
             try {
                 if (!serverProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                    System.out.println("FORZATO");
                     serverProcess.destroyForcibly();
                 }
                 System.out.println("Script stopped.");
             } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         } else {
