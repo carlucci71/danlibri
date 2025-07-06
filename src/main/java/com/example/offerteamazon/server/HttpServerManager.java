@@ -30,9 +30,16 @@ public class HttpServerManager {
     public void stopServer() {
         if (serverProcess != null) {
             serverProcess.destroy();
-            System.out.println("Server stopped.");
+            try {
+                if (!serverProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                    serverProcess.destroyForcibly();
+                }
+                System.out.println("Script stopped.");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else {
-            System.out.println("Server is not running.");
+            System.out.println("Script is not running.");
         }
     }
 
