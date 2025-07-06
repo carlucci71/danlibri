@@ -12,7 +12,7 @@ public class HttpServerManager {
 
     public void startServer() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "sh", "http-server /home/daniele/libri -p 81");
+            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "sh", "/home/daniele/lanciaLibri.sh");
             processBuilder.redirectErrorStream(true);
             serverProcess = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(serverProcess.getInputStream()));
