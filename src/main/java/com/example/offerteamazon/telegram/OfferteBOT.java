@@ -87,6 +87,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
                     } else if (text.equals("START")) {
                         manager.startServer();
                     } else if (text.equals("STOP")) {
+                        System.out.println("!!!!!!!");
                         manager.stopServer();
                     } else if (text.equals("killMe")) {
                         offerteBOT.stopBot();
