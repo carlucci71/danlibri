@@ -13,14 +13,15 @@ public class HttpServerManager {
     public void startServer() {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("sudo", "sh", "/home/daniele/lanciaLibri.sh");
-            processBuilder.redirectErrorStream(true);
+            //processBuilder.redirectErrorStream(true);
             serverProcess = processBuilder.start();
+            /*
             BufferedReader reader = new BufferedReader(new InputStreamReader(serverProcess.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
             }
-
+            */
             System.out.println("Script started with sudo.");
         } catch (IOException e) {
             e.printStackTrace();
