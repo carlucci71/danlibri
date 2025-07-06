@@ -1,8 +1,10 @@
 package com.example.offerteamazon.telegram;
 
+import com.example.offerteamazon.server.HttpServerManager;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -70,6 +72,8 @@ public class OfferteBOT extends TelegramLongPollingBot {
     private OfferteBOT offerteBOT;
     private INVII invio = INVII.MAIL;
 
+    @Autowired
+    HttpServerManager manager;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -80,6 +84,12 @@ public class OfferteBOT extends TelegramLongPollingBot {
                     String text = update.getMessage().getText();
                     if (text.equals("HELP")) {
                         execute(creaSendMessage(chatId, Arrays.stream(INVII.values()).collect(Collectors.toList()) + "->" + invio, false));
+                    } else if (text.equals("START")) {
+                        manager.startServer();
+                    } else if (text.equals("STOP")) {
+                        manager.stopServer();
+                    } else if (text.equals("killMe")) {
+                        offerteBOT.stopBot();
                     } else if (text.equals(INVII.DANK.name())) {
                         invio = INVII.DANK;
                     } else if (text.equals(INVII.FRANK.name())) {
@@ -88,9 +98,6 @@ public class OfferteBOT extends TelegramLongPollingBot {
                         invio = INVII.MAIL;
                     } else if (text.equals(INVII.FTP.name())) {
                         invio = INVII.FTP;
-                    }
-                    else if (text.equals("killMe")) {
-                        offerteBOT.stopBot();
                     } else {
                         execute(creaSendMessage(chatId, text, true));
                     }
