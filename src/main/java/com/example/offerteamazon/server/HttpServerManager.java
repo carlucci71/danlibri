@@ -37,7 +37,7 @@ public class HttpServerManager {
         }
     }
 */
-public void stopScript() {
+public void stopServer() {
     try {
         // Leggi il PID dal file
         BufferedReader reader = new BufferedReader(new FileReader(PID_FILE));
