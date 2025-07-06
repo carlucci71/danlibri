@@ -71,6 +71,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
     private BotSession registerBot;
     private OfferteBOT offerteBOT;
     private INVII invio = INVII.MAIL;
+    private boolean serverStart=false;
 
     @Autowired
     HttpServerManager manager;
@@ -83,11 +84,17 @@ public class OfferteBOT extends TelegramLongPollingBot {
                 if (update.getMessage().hasText()) {
                     String text = update.getMessage().getText();
                     if (text.equals("HELP")) {
-                        execute(creaSendMessage(chatId, "START STOP " + Arrays.stream(INVII.values()).collect(Collectors.toList()) + "->" + invio, false));
+                        execute(creaSendMessage(chatId, "START STOP " + Arrays.stream(INVII.values()).collect(Collectors.toList()) + "->" + invio + " / " + serverStart, false));
                     } else if (text.equals("START")) {
-                        manager.startServer();
+                        if (!serverStart) {
+                            manager.startServer();
+                            serverStart=true;
+                        }
                     } else if (text.equals("STOP")) {
-                        manager.stopServer();
+                        if (serverStart) {
+                            manager.stopServer();
+                            serverStart=false;
+                        }
                     } else if (text.equals("killMe")) {
                         offerteBOT.stopBot();
                     } else if (text.equals(INVII.DANK.name())) {
