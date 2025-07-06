@@ -10,7 +10,7 @@ public class HttpServerManager {
 
     public void startServer() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("sh", "/home/daniele/lanciaLibri.sh");
+            ProcessBuilder processBuilder = new ProcessBuilder("sh", "http-server /home/daniele/libri -p 81");
             serverProcess = processBuilder.start();
             System.out.println("Server started.");
         } catch (IOException e) {
