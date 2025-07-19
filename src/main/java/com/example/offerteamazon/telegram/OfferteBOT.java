@@ -39,7 +39,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -52,10 +54,11 @@ public class OfferteBOT extends TelegramLongPollingBot {
     private final String SERVER_FTP = "85.235.148.177";
     private final int PORT_FTP = 22;
     private final String MAIL_INVIO = "dan.car@libero.it";
-    private final String MAIL_KINDLE_D="dancarlu@kindle.com";
-    private final String MAIL_KINDLE_F="frankcarlu@kindle.com";
-    private final String MAIL_KINDLE_R="rdacqua@kindle.com";
+    private final String MAIL_KINDLE_D = "dancarlu@kindle.com";
+    private final String MAIL_KINDLE_F = "frankcarlu@kindle.com";
+    private final String MAIL_KINDLE_R = "rdacqua@kindle.com";
     private final String MAIL_PROVA = "carlucci.daniele@gmail.com";
+
     enum INVII {FTP, RD, FRANK, DANK, MAIL}
 
     @Value("${myChatId}")
@@ -77,20 +80,24 @@ public class OfferteBOT extends TelegramLongPollingBot {
     private BotSession registerBot;
     private OfferteBOT offerteBOT;
     private INVII invio = INVII.MAIL;
-    private boolean serverStart=false;
+    private boolean serverStart = false;
 
     @Autowired
     HttpServerManager manager;
 
     // Aggiungi questo metodo per configurare il TrustManager
     private void disableCertificateValidation() {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
                 }
         };
 
@@ -103,42 +110,48 @@ public class OfferteBOT extends TelegramLongPollingBot {
         }
     }
 
+    Set<Integer> ids = new HashSet<>();
+
     @Override
     public void onUpdateReceived(Update update) {
         try {
-            if (update.hasMessage()) {
-                Long chatId = update.getMessage().getChatId();
-                if (update.getMessage().hasText()) {
-                    String text = update.getMessage().getText();
-                    if (text.equals("HELP")) {
-                        execute(creaSendMessage(chatId, "START STOP " + Arrays.stream(INVII.values()).collect(Collectors.toList()) + "->" + invio + " / " + serverStart, false));
-                    } else if (text.equals("START")) {
-                        if (!serverStart) {
-                            manager.startServer();
-                            serverStart=true;
+            Integer mId = update.getMessage().getMessageId();
+            if (!ids.contains(mId)) {
+                ids.add(mId);
+                if (update.hasMessage()) {
+                    Long chatId = update.getMessage().getChatId();
+                    if (update.getMessage().hasText()) {
+                        String text = update.getMessage().getText();
+                        if (text.equals("HELP")) {
+                            execute(creaSendMessage(chatId, "START STOP " + Arrays.stream(INVII.values()).collect(Collectors.toList()) + "->" + invio + " / " + serverStart, false));
+                        } else if (text.equals("START")) {
+                            if (!serverStart) {
+                                manager.startServer();
+                                serverStart = true;
+                            }
+                        } else if (text.equals("STOP")) {
+                            if (serverStart) {
+                                manager.stopServer();
+                                serverStart = false;
+                            }
+                        } else if (text.equals("killMe")) {
+                            offerteBOT.stopBot();
+                        } else if (text.equals(INVII.DANK.name())) {
+                            invio = INVII.DANK;
+                        } else if (text.equals(INVII.FRANK.name())) {
+                            invio = INVII.FRANK;
+                        } else if (text.equals(INVII.RD.name())) {
+                            invio = INVII.RD;
+                        } else if (text.equals(INVII.MAIL.name())) {
+                            invio = INVII.MAIL;
+                        } else if (text.equals(INVII.FTP.name())) {
+                            invio = INVII.FTP;
+                        } else {
+                            execute(creaSendMessage(chatId, text, true));
                         }
-                    } else if (text.equals("STOP")) {
-                        if (serverStart) {
-                            manager.stopServer();
-                            serverStart=false;
-                        }
-                    } else if (text.equals("killMe")) {
-                        offerteBOT.stopBot();
-                    } else if (text.equals(INVII.DANK.name())) {
-                        invio = INVII.DANK;
-                    } else if (text.equals(INVII.FRANK.name())) {
-                        invio = INVII.FRANK;
-                    } else if (text.equals(INVII.RD.name())) {
-                        invio = INVII.RD;
-                    } else if (text.equals(INVII.MAIL.name())) {
-                        invio = INVII.MAIL;
-                    } else if (text.equals(INVII.FTP.name())) {
-                        invio = INVII.FTP;
-                    } else {
-                        execute(creaSendMessage(chatId, text, true));
+                    } else if (update.getMessage().hasDocument()) {
+                        downloadAndSend(update.getMessage().getDocument());
                     }
-                } else if (update.getMessage().hasDocument()) {
-                    downloadAndSend(update.getMessage().getDocument());
                 }
             }
         } catch (Exception e) {
@@ -187,8 +200,12 @@ public class OfferteBOT extends TelegramLongPollingBot {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
                 }
         };
 
@@ -330,8 +347,6 @@ public class OfferteBOT extends TelegramLongPollingBot {
 
             channelSftp.put(localFilePath, REMOTE_FTP_PATH);
             System.out.println("File caricato con successo: " + localFilePath
-
-
 
 
             );
