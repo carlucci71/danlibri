@@ -49,8 +49,9 @@ public class OfferteBOT extends TelegramLongPollingBot {
     private final String MAIL_INVIO = "dan.car@libero.it";
     private final String MAIL_KINDLE_D="dancarlu@kindle.com";
     private final String MAIL_KINDLE_F="frankcarlu@kindle.com";
+    private final String MAIL_KINDLE_R="rdacqua@kindle.com";
     private final String MAIL_PROVA = "carlucci.daniele@gmail.com";
-    enum INVII {FTP, FRANK, DANK, MAIL}
+    enum INVII {FTP, RD, FRANK, DANK, MAIL}
 
     @Value("${myChatId}")
     Long MY_CHAT_ID;
@@ -101,6 +102,8 @@ public class OfferteBOT extends TelegramLongPollingBot {
                         invio = INVII.DANK;
                     } else if (text.equals(INVII.FRANK.name())) {
                         invio = INVII.FRANK;
+                    } else if (text.equals(INVII.RD.name())) {
+                        invio = INVII.RD;
                     } else if (text.equals(INVII.MAIL.name())) {
                         invio = INVII.MAIL;
                     } else if (text.equals(INVII.FTP.name())) {
@@ -135,6 +138,8 @@ public class OfferteBOT extends TelegramLongPollingBot {
                 inviaEmail(MAIL_KINDLE_D, "doc D", "corpo", filePath);
             } else if (invio == INVII.FRANK) {
                 inviaEmail(MAIL_KINDLE_F, "doc F", "corpo", filePath);
+            } else if (invio == INVII.RD) {
+                inviaEmail(MAIL_KINDLE_R, "doc R", "corpo", filePath);
             } else if (invio == INVII.FTP) {
                 inviaFtp(filePath);
             }
