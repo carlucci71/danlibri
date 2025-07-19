@@ -242,7 +242,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
     @PostConstruct
     public OfferteBOT inizializza() throws Exception {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        System.out.println(tokenBot);
+        //System.out.println(tokenBot);
         disableCertificateValidation(); // Disabilita la validazione del certificato
         offerteBOT = this;
         registerBot = telegramBotsApi.registerBot(offerteBOT);
