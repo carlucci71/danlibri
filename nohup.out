@@ -2218,3 +2218,43 @@ Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to
 [[1;31mERROR[m] 
 [[1;31mERROR[m] For more information about the errors and possible solutions, please read the following articles:
 [[1;31mERROR[m] [1m[Help 1][m http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------< [0;36mcom.example:danlibri[0;1m >------------------------[m
+[[1;34mINFO[m] [1mBuilding danLibri 0.0.1-SNAPSHOT[m
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m>>> [0;32mspring-boot-maven-plugin:3.2.5:run[m [1m(default-cli)[0;1m > [0;1mtest-compile[m @ [36mdanlibri[0;1m >>>[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:resources[m [1m(default-resources)[m @ [36mdanlibri[0;1m ---[m
+[[1;34mINFO[m] Copying 1 resource from src/main/resources to target/classes
+[[1;34mINFO[m] Copying 0 resource from src/main/resources to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.11.0:compile[m [1m(default-compile)[m @ [36mdanlibri[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:testResources[m [1m(default-testResources)[m @ [36mdanlibri[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/daniele/github/danlibri/src/test/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.11.0:testCompile[m [1m(default-testCompile)[m @ [36mdanlibri[0;1m ---[m
+[[1;34mINFO[m] No sources to compile
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m<<< [0;32mspring-boot-maven-plugin:3.2.5:run[m [1m(default-cli)[0;1m < [0;1mtest-compile[m @ [36mdanlibri[0;1m <<<[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mspring-boot-maven-plugin:3.2.5:run[m [1m(default-cli)[m @ [36mdanlibri[0;1m ---[m
+[[1;34mINFO[m] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2025-07-19T19:12:52.536Z  INFO 3115548 --- [           main] c.e.offerteamazon.DanLibriApplication    : Starting DanLibriApplication using Java 17.0.15 with PID 3115548 (/home/daniele/github/danlibri/target/classes started by root in /home/daniele/github/danlibri)
+2025-07-19T19:12:52.539Z  INFO 3115548 --- [           main] c.e.offerteamazon.DanLibriApplication    : No active profile set, falling back to 1 default profile: "default"
+8141785687:AAFNdA0umjUm4FkmQwifgeR5I9ak3ddbCDQ
+2025-07-19T19:12:53.888Z  INFO 3115548 --- [           main] c.e.offerteamazon.DanLibriApplication    : Started DanLibriApplication in 1.684 seconds (process running for 2.008)
+Mail inviata a: rdacqua@kindle.com con file: tmp/Cosa Tiene Accese Le Stelle (Calabres... (Z-Library).epub
