@@ -176,7 +176,6 @@ public class OfferteBOT extends TelegramLongPollingBot {
     }
 
     private void inviaEmail(String destinatario, String oggetto, String corpo, String filePath) {
-        disableCertificateValidation(); // Disabilita la validazione del certificato
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -247,7 +246,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
         disableCertificateValidation(); // Disabilita la validazione del certificato
         offerteBOT = this;
         registerBot = telegramBotsApi.registerBot(offerteBOT);
-        offerteBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO SENZA CERTIFICATO 2");
+        offerteBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO");
         return offerteBOT;
     }
 
