@@ -1,0 +1,1 @@
+keytool -import -alias smtp-cert -file /home/daniele/github/danlibri/libero.crt -keystore /usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts
