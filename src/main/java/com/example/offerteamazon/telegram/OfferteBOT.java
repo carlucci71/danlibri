@@ -82,6 +82,27 @@ public class OfferteBOT extends TelegramLongPollingBot {
     @Autowired
     HttpServerManager manager;
 
+    // Aggiungi questo metodo per configurare il TrustManager
+    private void disableCertificateValidation() {
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+        };
+
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onUpdateReceived(Update update) {
         try {
@@ -222,9 +243,10 @@ public class OfferteBOT extends TelegramLongPollingBot {
     public OfferteBOT inizializza() throws Exception {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         System.out.println(tokenBot);
+        disableCertificateValidation(); // Disabilita la validazione del certificato
         offerteBOT = this;
         registerBot = telegramBotsApi.registerBot(offerteBOT);
-        offerteBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO");
+        offerteBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO SENZA CERTIFICATO");
         return offerteBOT;
     }
 
