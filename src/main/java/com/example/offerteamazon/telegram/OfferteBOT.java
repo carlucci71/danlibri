@@ -1,5 +1,6 @@
 package com.example.offerteamazon.telegram;
 
+import com.example.offerteamazon.MailProperties;
 import com.example.offerteamazon.server.HttpServerManager;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -38,6 +39,7 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -51,30 +53,10 @@ public class OfferteBOT extends TelegramLongPollingBot {
     public final String SERVER_FTP = "85.235.148.177";
     public final int PORT_FTP = 22;
     public final String MAIL_INVIO = "dan.car@libero.it";
+    public final String FTP = "FTP";
 
-    enum INVII {
-        FTP(null)
-        , RD("rdacqua@kindle.com")
-        , FRANK("frankcarlu@kindle.com")
-        , DANK("dancarlu@kindle.com")
-        , MAIL("carlucci.daniele@gmail.com")
-        ;
-        private final String mail;
-
-        INVII(String mail) {
-            this.mail = mail;
-        }
-
-        public static INVII getInvioFromText(String text) {
-            for (INVII value : INVII.values()) {
-                if (value.name().equals(text)) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-    }
+    @Autowired
+    MailProperties mailProperties;
 
     @Value("${myChatId}")
     Long MY_CHAT_ID;
@@ -90,14 +72,15 @@ public class OfferteBOT extends TelegramLongPollingBot {
 
     @Value("${passwordMail}")
     String passwordMail;
-
-
     private BotSession registerBot;
     private OfferteBOT offerteBOT;
-    private INVII invio = INVII.MAIL;
     private boolean serverStart = false;
     Session mailSession;
     Set<Integer> ids = new HashSet<>();
+
+    record Invio(String tipo, String mail) {}
+
+    private Invio invio;
 
     @Autowired
     HttpServerManager manager;
@@ -117,7 +100,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
                             offerteBOT.stopBot();
                         } else {
                             boolean help = true;
-                            INVII invioFromText = INVII.getInvioFromText(text);
+                            Invio invioFromText = getInvioFromText(text);
                             if (text.equals("START")) {
                                 if (!serverStart) {
                                     manager.startServer();
@@ -151,8 +134,17 @@ public class OfferteBOT extends TelegramLongPollingBot {
         }
     }
 
+    private Invio getInvioFromText(String text) {
+        for (Map.Entry<String, String> entry : mailProperties.getAddresses().entrySet()) {
+            if (entry.getKey().equals(text)){
+                return new Invio(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
+    }
+
     private void help(Long chatId) throws TelegramApiException {
-        execute(creaSendMessage(chatId, "FTP START STOP " + " [" + (serverStart ? "START" : "STOP") + "] \n" + Arrays.stream(INVII.values()).toList() + " [" + invio + "]", false));
+        execute(creaSendMessage(chatId, "FTP START STOP " + " [" + (serverStart ? "START" : "STOP") + "] \n" + mailProperties.getAddresses().entrySet().stream().map(el -> el.getKey()).toList() + " [" + (invio==null?"NULL":invio.tipo) + "]", false));
     }
 
     private void downloadAndSend(Document updateDocument, Long chatId) throws TelegramApiException {
@@ -168,7 +160,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
             String filePath = PATH_TMP + document.getFileName();
             downloadFile(file, new File(filePath));
 
-            if (invio == INVII.FTP) {
+            if (invio.tipo.equals(FTP)) {
                 inviaFtp(filePath);
             } else {
                 inviaEmail(invio.mail, document.getFileName(), "In allegato il documento: " + document.getFileName(), filePath);
