@@ -1,44 +1,26 @@
-package com.example.offerteamazon.server;
+package it.daniele.danlibri.server;
 
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 @Component
 public class HttpServerManager {
     private static final String PID_FILE = "/home/daniele/lanciaLibri.pid";
-    private Process serverProcess;
 
     public void startServer() {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("sudo", "sh", "/home/daniele/lanciaLibri.sh");
-            serverProcess = processBuilder.start();
+            processBuilder.start();
             System.out.println("Script started with sudo.");
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         }
     }
 
-    /*    public void stopServer() {
-            if (serverProcess != null) {
-                serverProcess.destroy();
-                try {
-                    if (!serverProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS)) {
-                        serverProcess.destroyForcibly();
-                    }
-                    System.out.println("Script stopped.");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                System.out.println("Script is not running.");
-            }
-        }
-    */
-    public void stopServer()  {
+    public void stopServer() {
         try {
             // Leggi il PID dal file
             BufferedReader reader = new BufferedReader(new FileReader(PID_FILE));
@@ -54,8 +36,8 @@ public class HttpServerManager {
             }
             reader.close();
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         }
-}
+    }
 
 }

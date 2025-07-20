@@ -1,9 +1,9 @@
-package com.example.offerteamazon.telegram;
+package it.daniele.danlibri.telegram;
 
-import com.example.offerteamazon.MailProperties;
-import com.example.offerteamazon.server.HttpServerManager;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
+import it.daniele.danlibri.MailProperties;
+import it.daniele.danlibri.server.HttpServerManager;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,14 +37,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 @Component
-public class OfferteBOT extends TelegramLongPollingBot {
+public class DanLibriBOT extends TelegramLongPollingBot {
 
     public static final String SMTP_LIBERO_IT = "smtp.libero.it";
     public static final String SMTP_PORT = "587";
@@ -54,6 +53,10 @@ public class OfferteBOT extends TelegramLongPollingBot {
     public final int PORT_FTP = 22;
     public final String MAIL_INVIO = "dan.car@libero.it";
     public final String FTP = "FTP";
+
+    DanLibriBOT(@Value("${tokenBot}") String tokenBot){
+        super(tokenBot);
+    }
 
     @Autowired
     MailProperties mailProperties;
@@ -67,13 +70,10 @@ public class OfferteBOT extends TelegramLongPollingBot {
     @Value("${passwordFtp}")
     String passFtp;
 
-    @Value("${tokenBot}")
-    String tokenBot;
-
     @Value("${passwordMail}")
     String passwordMail;
     private BotSession registerBot;
-    private OfferteBOT offerteBOT;
+    private DanLibriBOT danLibriBOT;
     private boolean serverStart = false;
     Session mailSession;
     Set<Integer> ids = new HashSet<>();
@@ -97,7 +97,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
                         String text = update.getMessage().getText();
                         if (text.equals("killMe")) {
                             inviaMessaggio(chatId, "KILLATO");
-                            offerteBOT.stopBot();
+                            danLibriBOT.stopBot();
                         } else {
                             boolean help = true;
                             Invio invioFromText = getInvioFromText(text);
@@ -113,7 +113,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
                                 }
                             } else if (text.equals("KILL")) {
                                 inviaMessaggio(chatId, "KILLATO");
-                                offerteBOT.stopBot();
+                                danLibriBOT.stopBot();
                             } else if (invioFromText != null) {
                                 invio = invioFromText;
                             } else if (!text.equals("HELP")) {
@@ -144,7 +144,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
     }
 
     private void help(Long chatId) throws TelegramApiException {
-        execute(creaSendMessage(chatId, "FTP START STOP " + " [" + (serverStart ? "START" : "STOP") + "] \n" + mailProperties.getAddresses().entrySet().stream().map(el -> el.getKey()).toList() + " [" + (invio==null?"NULL":invio.tipo) + "]", false));
+        execute(creaSendMessage(chatId, "FTP START STOP " + " [" + (serverStart ? "START" : "STOP") + "] \n" + mailProperties.getAddresses().keySet().stream().toList() + " [" + (invio==null?"NON CONFIGURATO":invio.tipo) + "]", false));
     }
 
     private void downloadAndSend(Document updateDocument, Long chatId) throws TelegramApiException {
@@ -232,20 +232,14 @@ public class OfferteBOT extends TelegramLongPollingBot {
     public String getBotUsername() {
         return "DanReadBot";
     }
-
-    @Override
-    public String getBotToken() {
-        return tokenBot;
-    }
-
     @PostConstruct
-    public OfferteBOT inizializza() throws Exception {
+    public DanLibriBOT inizializza() throws Exception {
         mailSession = createMailSession();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        offerteBOT = this;
-        registerBot = telegramBotsApi.registerBot(offerteBOT);
-        offerteBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO");
-        return offerteBOT;
+        danLibriBOT = this;
+        registerBot = telegramBotsApi.registerBot(danLibriBOT);
+        danLibriBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO");
+        return danLibriBOT;
     }
 
     public void inviaMessaggio(long chatId, String msg) throws TelegramApiException {
