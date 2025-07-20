@@ -2,7 +2,6 @@ package it.daniele.danlibri.telegram;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
-import it.daniele.danlibri.MailProperties;
 import it.daniele.danlibri.server.HttpServerManager;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,15 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -58,9 +64,6 @@ public class DanLibriBOT extends TelegramLongPollingBot {
         super(tokenBot);
     }
 
-    @Autowired
-    MailProperties mailProperties;
-
     @Value("${myChatId}")
     Long MY_CHAT_ID;
 
@@ -77,6 +80,8 @@ public class DanLibriBOT extends TelegramLongPollingBot {
     private boolean serverStart = false;
     Session mailSession;
     Set<Integer> ids = new HashSet<>();
+    Connection connection = null;
+    List<Invio> invii;
 
     record Invio(String tipo, String mail) {}
 
@@ -114,6 +119,21 @@ public class DanLibriBOT extends TelegramLongPollingBot {
                             } else if (text.equals("KILL")) {
                                 inviaMessaggio(chatId, "KILLATO");
                                 danLibriBOT.stopBot();
+                            } else if (text.startsWith("ADD ")){
+                                String nome = text.substring(4);
+                                String[] split = nome.split(" ");
+                                PreparedStatement ps = connection.prepareStatement("insert into mail (tipo,mail, def) values (?,?,?)");
+                                insertInDb(ps, split[0],split[1],0);
+                                ps.close();
+                                caricaInvii();
+                            } else if (text.startsWith("DEL ")){
+                                String nome = text.substring(4);
+                                String[] split = nome.split(" ");
+                                PreparedStatement ps = connection.prepareStatement("delete from mail where tipo = ?");
+                                ps.setString(1,split[0]);
+                                ps.executeUpdate();
+                                ps.close();
+                                caricaInvii();
                             } else if (invioFromText != null) {
                                 invio = invioFromText;
                             } else if (!text.equals("HELP")) {
@@ -135,16 +155,16 @@ public class DanLibriBOT extends TelegramLongPollingBot {
     }
 
     private Invio getInvioFromText(String text) {
-        for (Map.Entry<String, String> entry : mailProperties.getAddresses().entrySet()) {
-            if (entry.getKey().equals(text)){
-                return new Invio(entry.getKey(), entry.getValue());
+        for (Invio entry : invii) {
+            if (entry.tipo.equals(text)){
+                return entry;
             }
         }
         return null;
     }
 
     private void help(Long chatId) throws TelegramApiException {
-        execute(creaSendMessage(chatId, "FTP START STOP " + " [" + (serverStart ? "START" : "STOP") + "] \n" + mailProperties.getAddresses().keySet().stream().toList() + " [" + (invio==null?"NON CONFIGURATO":invio.tipo) + "]", false));
+        execute(creaSendMessage(chatId, "FTP START STOP " + " [" + (serverStart ? "START" : "STOP") + "] \n" + invii.stream().map(e->e.tipo).toList() + " [" + (invio==null?"NON CONFIGURATO":invio.tipo) + "]", false));
     }
 
     private void downloadAndSend(Document updateDocument, Long chatId) throws TelegramApiException {
@@ -234,12 +254,49 @@ public class DanLibriBOT extends TelegramLongPollingBot {
     }
     @PostConstruct
     public DanLibriBOT inizializza() throws Exception {
+
+        connection = DriverManager.getConnection("jdbc:sqlite:danlibri.db");
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='mail'");
+        if (!rs.next()) {
+            st = connection.createStatement();
+            st.executeUpdate("CREATE TABLE mail (tipo TEXT, mail TEXT, def INTEGER)");
+            PreparedStatement ps = connection.prepareStatement("insert into mail (tipo,mail, def) values (?,?,?)");
+            insertInDb(ps, "MAIL","carlucci.daniele@gmail.com",1);
+            insertInDb(ps, "RD","rdacqua@kindle.com",0);
+            insertInDb(ps, "FRANK","frankcarlu@kindle.com",0);
+            insertInDb(ps, "DANK","dancarlu@kindle.com",0);
+            ps.close();
+        }
+        caricaInvii();
+
         mailSession = createMailSession();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         danLibriBOT = this;
         registerBot = telegramBotsApi.registerBot(danLibriBOT);
         danLibriBOT.inviaMessaggio(MY_CHAT_ID, "AVVIATO");
         return danLibriBOT;
+    }
+
+    private void caricaInvii() throws SQLException {
+        invii=new ArrayList<>();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery("select tipo,mail, def from mail");
+        while (rs.next()){
+            Invio inv = new Invio(rs.getString("tipo"), rs.getString("mail"));
+            invii.add(inv);
+            if (rs.getInt("def")==1){
+                invio = inv;
+            }
+        }
+        st.close();
+    }
+
+    private void insertInDb(PreparedStatement ps, String key, String value, int def) throws SQLException {
+        ps.setString(1,key);
+        ps.setString(2,value);
+        ps.setInt(3,def);
+        ps.executeUpdate();
     }
 
     public void inviaMessaggio(long chatId, String msg) throws TelegramApiException {
