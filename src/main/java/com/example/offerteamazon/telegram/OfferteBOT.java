@@ -58,7 +58,6 @@ public class OfferteBOT extends TelegramLongPollingBot {
         , FRANK("frankcarlu@kindle.com")
         , DANK("dancarlu@kindle.com")
         , MAIL("carlucci.daniele@gmail.com")
-        , GIMMI("d.carlucci@almaviva.it")
         ;
         private final String mail;
 
