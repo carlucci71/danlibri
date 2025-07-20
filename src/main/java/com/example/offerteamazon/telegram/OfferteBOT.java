@@ -53,12 +53,28 @@ public class OfferteBOT extends TelegramLongPollingBot {
     public final String MAIL_INVIO = "dan.car@libero.it";
 
     enum INVII {
-        FTP(null), RD("rdacqua@kindle.com"), FRANK("frankcarlu@kindle.com"), DANK("dancarlu@kindle.com"), MAIL("carlucci.daniele@gmail.com");
+        FTP(null)
+        , RD("rdacqua@kindle.com")
+        , FRANK("frankcarlu@kindle.com")
+        , DANK("dancarlu@kindle.com")
+        , MAIL("carlucci.daniele@gmail.com")
+        , GIMMI("d.carlucci@almaviva.it")
+        ;
         private final String mail;
 
         INVII(String mail) {
             this.mail = mail;
         }
+
+        public static INVII getInvioFromText(String text) {
+            for (INVII value : INVII.values()) {
+                if (value.name().equals(text)) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
     }
 
     @Value("${myChatId}")
@@ -102,6 +118,7 @@ public class OfferteBOT extends TelegramLongPollingBot {
                             offerteBOT.stopBot();
                         } else {
                             boolean help = true;
+                            INVII invioFromText = INVII.getInvioFromText(text);
                             if (text.equals("START")) {
                                 if (!serverStart) {
                                     manager.startServer();
@@ -115,16 +132,8 @@ public class OfferteBOT extends TelegramLongPollingBot {
                             } else if (text.equals("KILL")) {
                                 inviaMessaggio(chatId, "KILLATO");
                                 offerteBOT.stopBot();
-                            } else if (text.equals(INVII.DANK.name())) {
-                                invio = INVII.DANK;
-                            } else if (text.equals(INVII.FRANK.name())) {
-                                invio = INVII.FRANK;
-                            } else if (text.equals(INVII.RD.name())) {
-                                invio = INVII.RD;
-                            } else if (text.equals(INVII.MAIL.name())) {
-                                invio = INVII.MAIL;
-                            } else if (text.equals(INVII.FTP.name())) {
-                                invio = INVII.FTP;
+                            } else if (invioFromText != null) {
+                                invio = invioFromText;
                             } else if (!text.equals("HELP")) {
                                 help = false;
                                 execute(creaSendMessage(chatId, text, true));
@@ -249,11 +258,11 @@ public class OfferteBOT extends TelegramLongPollingBot {
     }
 
     public void inviaMessaggio(long chatId, String msg) throws TelegramApiException {
-            while (msg.length() > 4000) {
-                execute(creaSendMessage(chatId, msg.substring(0, 4000)));
-                msg = msg.substring(4000);
-            }
-            execute(creaSendMessage(chatId, msg));
+        while (msg.length() > 4000) {
+            execute(creaSendMessage(chatId, msg.substring(0, 4000)));
+            msg = msg.substring(4000);
+        }
+        execute(creaSendMessage(chatId, msg));
     }
 
     private SendMessage creaSendMessage(long chatId, String msg) {
